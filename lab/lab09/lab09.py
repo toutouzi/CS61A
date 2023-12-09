@@ -8,6 +8,13 @@ def insert_into_all(item, nested_list):
     [[0], [0, 1, 2], [0, 3]]
     """
     "*** YOUR CODE HERE ***"
+    sum = []
+    for e in nested_list:
+        e = [item] + e
+        sum.append(e)
+    return sum
+    # codereview
+    # return [[item] + s for s in nested_list]
 
 
 def subseqs(s):
@@ -20,11 +27,13 @@ def subseqs(s):
     >>> subseqs([])
     [[]]
     """
-    if ________________:
-        ________________
+    if s == []:
+        return [s]
     else:
-        ________________
-        ________________
+        rest = s[1:]
+        rest_seq = subseqs(rest)
+        return rest_seq + insert_into_all(s[0],rest_seq)    
+
 
 
 def non_decrease_subseqs(s):
@@ -43,14 +52,14 @@ def non_decrease_subseqs(s):
     """
     def subseq_helper(s, prev):
         if not s:
-            return ____________________
+            return [[]]
         elif s[0] < prev:
-            return ____________________
+            return subseq_helper(s[1:],prev)        
         else:
-            a = ______________________
-            b = ______________________
-            return insert_into_all(________, ______________) + ________________
-    return subseq_helper(____, ____)
+            a = subseq_helper(s[1:],s[0])
+            b = subseq_helper(s[1:],prev)
+            return insert_into_all(s[0],a) + b
+    return subseq_helper(s,0)
 
 
 def num_trees(n):
@@ -74,6 +83,17 @@ def num_trees(n):
 
     """
     "*** YOUR CODE HERE ***"
+    if n == 1:
+        return 1
+    elif n == 2:
+        return 1
+    else :
+        res = 0
+        for i in range(n-1):
+            res = res + num_trees(i+1) * num_trees(n-i-1)
+        return res
+    
+    # 7for i in range(1, n):
 
 
 def partition_gen(n):
@@ -88,11 +108,11 @@ def partition_gen(n):
     """
     def yield_helper(j, k):
         if j == 0:
-            ____________________________________________
-        elif ____________________________________________:
-            for small_part in ________________________________:
-                yield ____________________________________________
-            yield ________________________________________
+            yield []
+        elif j>0 and k>0 :
+            for small_part in yield_helper(j-k, k):
+                yield [k] + small_part
+            yield from yield_helper(j, k-1)
     yield from yield_helper(n, n)
 
 
@@ -134,6 +154,41 @@ class VendingMachine:
     'Here is your soda.'
     """
     "*** YOUR CODE HERE ***"
+    def __init__(self,name, price):
+        self.name = name
+        self.price = price
+        self.num = 0
+        self.balance = 0
+    
+    def vend(self):
+        if (self.num > 0) and (self.balance >= self.price):
+            self.balance -= self.price
+            self.num -= 1
+            if self.balance == 0:
+                return 'Here is your {0}.'.format(self.name)
+            else:
+                rest = self.balance
+                self.balance = 0
+                return 'Here is your {0} and ${1} change.' .format(self.name, rest)
+        elif self.num == 0:
+            return 'Nothing left to vend. Please restock.'
+        else:
+            bu = self.price - self.balance
+            return 'Please update your balance with ${0} more funds.'.format(bu)
+    
+    def restock(self,num):
+        self.num += num
+        return 'Current {0} stock: {1}'.format(self.name,self.num)
+        
+    def add_funds(self,num):
+        if self.num == 0:
+            return 'Nothing left to vend. Please restock. Here is your ${0}.'.format(num)
+        else:
+            self.balance += num
+            return 'Current balance: ${0}'.format(self.balance)
+
+
+
 
 
 def trade(first, second):
@@ -173,9 +228,9 @@ def trade(first, second):
     """
     m, n = 1, 1
 
-    equal_prefix = lambda: ______________________
-    while _______________________________:
-        if __________________:
+    equal_prefix = lambda:sum(first[:m]) == sum(second[:n])
+    while m <= len(first) and n <= len(second) and not(equal_prefix()):
+        if sum(first[:m]) < sum(second[:n]):
             m += 1
         else:
             n += 1
