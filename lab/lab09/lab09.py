@@ -268,11 +268,11 @@ def shuffle(cards):
     ['AH', 'AD', 'AS', 'AC', '2H', '2D', '2S', '2C', '3H', '3D', '3S', '3C']
     """
     assert len(cards) % 2 == 0, 'len(cards) must be even'
-    half = _______________
+    half = len(cards) // 2
     shuffled = []
-    for i in _____________:
-        _________________
-        _________________
+    for i in range(half):
+        shuffled.append(cards[i]) 
+        shuffled.append(cards[half+i]) 
     return shuffled
 
 
@@ -297,6 +297,14 @@ def insert(link, value, index):
     IndexError: Out of bounds!
     """
     "*** YOUR CODE HERE ***"
+    while index and link:
+        link = link.rest
+        index -= 1
+    if link :
+        link.rest = Link(link.first,link.rest)
+        link.first = value
+    else:
+        raise IndexError('Out of bounds!')
 
 
 def deep_len(lnk):
@@ -313,12 +321,12 @@ def deep_len(lnk):
     >>> deep_len(levels)
     5
     """
-    if ______________:
+    if not lnk :
         return 0
-    elif ______________:
+    elif not isinstance(lnk,Link) :
         return 1
     else:
-        return _________________________
+        return deep_len(lnk.first) + deep_len(lnk.rest) 
 
 
 def make_to_string(front, mid, back, empty_repr):
@@ -337,10 +345,10 @@ def make_to_string(front, mid, back, empty_repr):
     '()'
     """
     def printer(lnk):
-        if ______________:
-            return _________________________
+        if lnk is Link.empty:
+            return empty_repr
         else:
-            return _________________________
+            return  front + str(lnk.first) + mid + printer(lnk.rest) + back
     return printer
 
 
@@ -395,6 +403,25 @@ def long_paths(t, n):
     [[0, 11, 12, 13, 14]]
     """
     "*** YOUR CODE HERE ***"
+    res = []
+    if t:
+        way = [t.label]
+        n -= 1
+        if t.branches:
+            for br in t.branches:
+                for i in long_paths(br, n):
+                    res.append(way + i)
+                # if  not(br.is_leaf):
+                #     for i in long_paths(br, n):
+                #         res.append(way + i)
+                # elif n < 2 :
+                #     res.append(way + [br.label])
+                # else:
+                #     continue
+        else:
+            if n < 0 :
+                res.append(way)
+    return res
 
 
 def reverse_other(t):
@@ -411,6 +438,28 @@ def reverse_other(t):
     Tree(1, [Tree(8, [Tree(3, [Tree(5), Tree(4)]), Tree(6, [Tree(7)])]), Tree(2)])
     """
     "*** YOUR CODE HERE ***"
+    def helper(t, re):
+        if t and t.branches:
+            if re and len(t.branches) > 1:
+                i , j  = 0, len(t.branches)-1
+                while i < j:
+                    temp = t.branches[i].label
+                    t.branches[i].label = t.branches[j].label
+                    t.branches[j].label = temp
+                    i , j = i +1 , j - 1    
+            for br in t.branches:
+                helper(br,not re)
+
+    helper(t,True)
+    # def helper(t, last_reversed):
+    #     if t.is_leaf():
+    #         return 
+    #     new_branches = [b.label for b in t.branches][::-1]
+    #     for i in range(len(t.branches)):
+    #         if not last_reversed:
+    #             t.branches[i].label = new_branches[i]
+    #         helper(t.branches[i], not last_reversed)
+    # helper(t, False)
 
 
 class Link:
